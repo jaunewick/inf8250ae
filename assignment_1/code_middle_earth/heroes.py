@@ -41,7 +41,7 @@ class Heroes: ## The Fellowship class
         
         ######### WRITE YOUR CODE HERE
         hero = self.heroes[hero_index]
-        rng = np.random.default_rng(12345)
+        rng = np.random.default_rng()
 
         reward = 1 if rng.random() < hero['true_success_probability'] else 0
         hero['successes'] += reward
