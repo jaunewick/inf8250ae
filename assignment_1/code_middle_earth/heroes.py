@@ -1,3 +1,4 @@
+import numpy as np
 
 class Heroes: ## The Fellowship class 
     def __init__(self,
@@ -39,7 +40,12 @@ class Heroes: ## The Fellowship class
             raise IndexError("Hero index out of range.")
         
         ######### WRITE YOUR CODE HERE
-        ...
+        hero = self.heroes[hero_index]
+        rng = np.random.default_rng(12345)
+
+        reward = 1 if rng.random() < hero['true_success_probability'] else 0
+        hero['successes'] += reward
+        hero['n_quests'] += 1
         #########
         
         return reward
