@@ -35,6 +35,7 @@ def eps_greedy(
     ######### WRITE YOUR CODE HERE
     optimal_hero_index = np.argmax([hero['true_success_probability'] for hero in heroes.heroes])
     optimal_reward = heroes.heroes[optimal_hero_index]['true_success_probability']
+
     rng = np.random.default_rng()
     optimal_count = 0
     ######### 
@@ -47,6 +48,7 @@ def eps_greedy(
             hero_index = np.argmax(values)
 
         reward = heroes.attempt_quest(hero_index)
+
         rew_record.append(reward)
         total_rewards += reward
         avg_ret_record.append(total_rewards/(1+t))
