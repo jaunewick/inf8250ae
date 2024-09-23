@@ -46,8 +46,6 @@ def gradient_bandit(
     ######### WRITE YOUR CODE HERE
     optimal_hero_index = np.argmax([hero['true_success_probability'] for hero in heroes.heroes])
     optimal_reward = heroes.heroes[optimal_hero_index]['true_success_probability']
-
-    optimal_count = 0
     ######### 
 
     for t in range(heroes.total_quests):
@@ -66,13 +64,8 @@ def gradient_bandit(
         total_regret += regret
         tot_reg_record.append(total_regret)
 
-        if optimal_hero_index == hero_index:
-            optimal_count += 1
-        if t > 0:
-            opt_action_record.append(optimal_count/(1+t))
-        else:
-            opt_action_record.append(float(optimal_count))
-        
+        opt_action_record.append(heroes.heroes[optimal_hero_index]['n_quests']/(1+t))
+
         if use_baseline:
             reward_bar = avg_reward
 
