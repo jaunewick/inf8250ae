@@ -52,8 +52,7 @@ def gradient_bandit(
 
     for t in range(heroes.total_quests):
         ######### WRITE YOUR CODE HERE
-        # Stabilizing, preventing NaN values
-        policy = softmax(h - np.max(h))
+        policy = softmax(h)
         hero_index = np.random.choice(num_heroes, p=policy)
 
         reward = heroes.attempt_quest(hero_index)
@@ -73,7 +72,7 @@ def gradient_bandit(
             opt_action_record.append(optimal_count/(1+t))
         else:
             opt_action_record.append(float(optimal_count))
-
+        
         if use_baseline:
             reward_bar = avg_reward
 
@@ -81,7 +80,7 @@ def gradient_bandit(
             if i == hero_index:
                 h[i] += alpha * (reward - reward_bar) * (1 - policy[i])
             else:
-                h[i] += alpha * (reward - reward_bar) * policy[i]
+                h[i] -= alpha * (reward - reward_bar) * policy[i]
         #########  
     
     return rew_record, avg_ret_record, tot_reg_record, opt_action_record
