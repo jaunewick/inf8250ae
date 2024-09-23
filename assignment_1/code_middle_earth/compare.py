@@ -14,8 +14,8 @@ if __name__ == "__main__":
     results_list = []
 
     # Best eps-greedy 
-    eps_greedy_best_eps = 0.6          # Modify this param
-    eps_greedy_best_init_val = 0.      # Modify this param
+    eps_greedy_best_eps = 0.07          # Modify this param
+    eps_greedy_best_init_val = 2.0      # Modify this param
     rew_rec, avg_ret_rec, tot_reg_rec, opt_act_rec = run_trials(30, 
                                                                 heroes=heroes, bandit_method=eps_greedy, 
                                                                 eps=eps_greedy_best_eps, init_value=eps_greedy_best_init_val)
