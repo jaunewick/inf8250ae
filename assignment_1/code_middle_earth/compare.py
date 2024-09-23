@@ -57,8 +57,8 @@ if __name__ == "__main__":
     })
 
     # Best Gradient Bandit
-    gradient_bandit_best_alpha = 2.75                            # Modify this param
-    gradient_bandit_use_baseline = False # True or False         # Modify this param
+    gradient_bandit_best_alpha = 0.5                            # Modify this param
+    gradient_bandit_use_baseline = True # True or False         # Modify this param
     rew_rec, avg_ret_rec, tot_reg_rec, opt_act_rec = run_trials(30, 
                                                                 heroes=heroes, bandit_method=gradient_bandit, 
                                                                 alpha=gradient_bandit_best_alpha, use_baseline=gradient_bandit_use_baseline)
