@@ -43,8 +43,8 @@ if __name__ == "__main__":
     })
 
     # Best Boltzmann
-    boltzmann_best_tau = 0.5          # Modify this param
-    boltzmann_best_init_val = 0.0     # Modify this param
+    boltzmann_best_tau = 0.1          # Modify this param
+    boltzmann_best_init_val = 0.01     # Modify this param
     rew_rec, avg_ret_rec, tot_reg_rec, opt_act_rec = run_trials(30, 
                                                                 heroes=heroes, bandit_method=boltzmann, 
                                                                 tau=boltzmann_best_tau, init_value=boltzmann_best_init_val)
