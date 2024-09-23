@@ -29,8 +29,8 @@ if __name__ == "__main__":
 
 
     # Best UCB
-    ucb_best_c = 10                    # Modify this param
-    ucb_best_init_value = 0.0          # Modify this param
+    ucb_best_c = 0.7                    # Modify this param
+    ucb_best_init_value = 2.0          # Modify this param
     rew_rec, avg_ret_rec, tot_reg_rec, opt_act_rec = run_trials(30, 
                                                                 heroes=heroes, bandit_method=ucb, 
                                                                 c=ucb_best_c, init_value=ucb_best_init_value)
