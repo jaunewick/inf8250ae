@@ -93,7 +93,7 @@ def make_eps_greedy_policy(state_action_values: ActionValueDict, epsilon: float)
 
         # TO IMPLEMENT
         # ----------------------------------
-
+        action = np.random.randint(0, n_actions) if np.random.rand() < epsilon else random_argmax(state_values[state])
         # ----------------------------------
 
         return action
@@ -119,7 +119,17 @@ def generate_episode(policy: Policy, env: RaceTrack) -> tuple[list[State], list[
 
     # TO IMPLEMENT
     # --------------------------------
+    state = env.reset()
+    done = False
 
+    while not done:
+        action = policy(state)
+        next_state, reward, done, _ = env.step(action)
+        states.append(state)
+        rewards.append(reward)
+        actions.append(action)
+
+        state = next_state
     # --------------------------------
 
     return states, actions, rewards
