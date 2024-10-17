@@ -21,7 +21,17 @@ def fv_mc_estimation(states : list[State], actions: list[Action], rewards: list[
 
     # TO IMPLEMENT
     # --------------------------------
+    G = 0
+    first_visit = {}
 
+    for t in reversed(range(len(states))):
+        sa = (*states[t], actions[t])
+
+        G = discount * G + rewards[t]
+
+        if sa not in first_visit:
+            first_visit[sa] = t
+            visited_sa_returns[sa] = G
     # --------------------------------
 
     return visited_sa_returns
@@ -47,7 +57,19 @@ def fv_mc_control(env: RaceTrack, epsilon: float, num_episodes: int, discount: f
 
     # TO IMPLEMENT
     # --------------------------------
+    for _ in range(num_episodes):
+        states, actions, rewards = utl.generate_episode(utl.make_eps_greedy_policy(state_action_values, epsilon), env)
+        visited_sa_returns = fv_mc_estimation(states, actions, rewards, discount)
 
+        all_returns.append(np.sum(rewards))
+
+        for sa in visited_sa_returns:
+            if sa not in all_state_action_values:
+                all_state_action_values[sa] = []
+            all_state_action_values[sa].append(visited_sa_returns[sa])
+
+        for sa in all_state_action_values:
+            state_action_values[sa] = np.mean(all_state_action_values[sa])
     # --------------------------------
 
     return state_action_values, all_returns

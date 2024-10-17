@@ -3,3 +3,5 @@
 **__pycache__/
 
 **results
+assignment_2/Assignment_2/data/fv_mc_returns.npy
+assignment_2/Assignment_2/data/fv_mc_sa_values.npy

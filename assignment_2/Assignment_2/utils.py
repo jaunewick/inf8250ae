@@ -152,7 +152,6 @@ def make_eps_greedy_policy_distribution(state_action_values: ActionValueDict, ep
 
         # TO IMPLEMENT
         # ----------------------------------
-
         # ----------------------------------
 
         return action_probabilities
