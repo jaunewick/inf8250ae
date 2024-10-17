@@ -58,11 +58,10 @@ def fv_mc_control(env: RaceTrack, epsilon: float, num_episodes: int, discount: f
     # TO IMPLEMENT
     # --------------------------------
     for _ in range(num_episodes):
-        states, actions, rewards = utl.generate_episode(utl.make_eps_greedy_policy(state_action_values, epsilon), env)
+        policy = utl.make_eps_greedy_policy(state_action_values, epsilon)
+        states, actions, rewards = utl.generate_episode(policy, env)
+
         visited_sa_returns = fv_mc_estimation(states, actions, rewards, discount)
-
-        all_returns.append(np.sum(rewards))
-
         for sa in visited_sa_returns:
             if sa not in all_state_action_values:
                 all_state_action_values[sa] = []
@@ -70,6 +69,8 @@ def fv_mc_control(env: RaceTrack, epsilon: float, num_episodes: int, discount: f
 
         for sa in all_state_action_values:
             state_action_values[sa] = np.mean(all_state_action_values[sa])
+
+        all_returns.append(np.sum(rewards))
     # --------------------------------
 
     return state_action_values, all_returns
