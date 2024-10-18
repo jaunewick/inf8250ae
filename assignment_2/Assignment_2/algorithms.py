@@ -110,6 +110,19 @@ def is_mc_estimate_with_ratios(
 
     # TO IMPLEMENT
     # --------------------------------
+    G = 0
+    W = 1
+
+    for t in reversed(range(len(states))):
+        sa = (*states[t], actions[t])
+
+        G = discount * G + rewards[t]
+
+        if sa not in state_action_returns_and_ratios:
+            state_action_returns_and_ratios[sa] = []
+        state_action_returns_and_ratios[sa].append((G, W))
+
+        W *= target_policy(states[t])[actions[t]] / behaviour_policy(states[t])[actions[t]]
     # --------------------------------
 
     return state_action_returns_and_ratios
@@ -123,7 +136,28 @@ def ev_mc_off_policy_control(env: RaceTrack, behaviour_policy: DistributionPolic
 
     # TO IMPLEMENT
     # --------------------------------
+    for _ in range(num_episodes):
+        target_policy = utl.make_eps_greedy_policy_distribution(state_action_values, epsilon)
+        states, actions, rewards = utl.generate_episode(utl.convert_to_sampling_policy(behaviour_policy), env)
 
+        state_action_returns_and_ratios = is_mc_estimate_with_ratios(
+            states,
+            actions,
+            rewards,
+            target_policy,
+            behaviour_policy,
+            discount
+        )
+        for sa in state_action_returns_and_ratios:
+            if sa not in all_state_action_values:
+                all_state_action_values[sa] = []
+            for G, W in state_action_returns_and_ratios[sa]:
+                all_state_action_values[sa].append(G * W)
+
+        for sa in all_state_action_values:
+            state_action_values[sa] = np.mean(all_state_action_values[sa])
+
+        all_returns.append(np.sum(rewards))
     # --------------------------------
 
     return state_action_values, all_returns
