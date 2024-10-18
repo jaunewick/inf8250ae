@@ -100,7 +100,19 @@ def train_episode(agent: Agent, env: RaceTrack) -> tuple[list[State], list[Actio
 
     # TO IMPLEMENT
     # --------------------------
+    state = env.reset()
+    done = False
 
+    policy = agent.get_current_policy()
+    action = policy(state)
+    while not done:
+        next_state, reward, done, _ = env.step(action)
+        states.append(state)
+        rewards.append(reward)
+        actions.append(action)
+        if not done:
+            action = agent.agent_step(state, action, reward, next_state, done)
+        state = next_state
     # --------------------------
 
     return states, actions, rewards
