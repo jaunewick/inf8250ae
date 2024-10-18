@@ -110,14 +110,13 @@ def is_mc_estimate_with_ratios(
 
     # TO IMPLEMENT
     # --------------------------------
-
     # --------------------------------
 
     return state_action_returns_and_ratios
 
 
 def ev_mc_off_policy_control(env: RaceTrack, behaviour_policy: DistributionPolicy, epsilon: float, num_episodes: int, discount: float):
-     # Initialize memory of estimated state-action returns
+    # Initialize memory of estimated state-action returns
     state_action_values = utl.init_q_and_v()[1]
     all_state_action_values = {}
     all_returns = []

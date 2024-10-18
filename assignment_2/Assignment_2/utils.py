@@ -152,6 +152,13 @@ def make_eps_greedy_policy_distribution(state_action_values: ActionValueDict, ep
 
         # TO IMPLEMENT
         # ----------------------------------
+        a_star = random_argmax(state_values[state])
+
+        action_probabilities[a_star] = 1 - epsilon + (epsilon / n_actions)
+
+        for a in range(n_actions):
+            if a != a_star:
+                action_probabilities[a] = epsilon / n_actions
         # ----------------------------------
 
         return action_probabilities
