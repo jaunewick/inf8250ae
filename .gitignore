@@ -7,3 +7,5 @@ assignment_2/Assignment_2/data/fv_mc_returns.npy
 assignment_2/Assignment_2/data/fv_mc_sa_values.npy
 assignment_2/Assignment_2/data/ev_mc_off_policy_returns.npy
 assignment_2/Assignment_2/data/ev_mc_off_policy_sa_values.npy
+assignment_2/Assignment_2/data/td_sarsa_agents.npy
+assignment_2/Assignment_2/data/td_sarsa_returns.npy

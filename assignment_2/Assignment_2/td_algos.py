@@ -65,7 +65,19 @@ class Sarsa(Agent):
 
         # TO IMPLEMENT
         # --------------------------
+        policy = self.get_current_policy()
+        next_action = policy(current_state)
 
+        prev_sa = (*prev_state, prev_action)
+        current_sa = (*current_state, next_action)
+
+        self.q[prev_sa] += self.step_size * (
+            prev_reward
+            + self.discount * self.q[current_sa] * (not done)
+            - self.q[prev_sa]
+        )
+
+        action = next_action
         # --------------------------
 
         return action
@@ -77,7 +89,18 @@ class QLearningAgent(Agent):
 
         # TO IMPLEMENT
         # --------------------------
+        policy = self.get_current_policy()
+        next_action = policy(current_state)
 
+        prev_sa = (*prev_state, prev_action)
+
+        self.q[prev_sa] += self.step_size * (
+            prev_reward
+            + self.discount * np.max([self.q[(*current_state, a)] for a in range(9)]) * (not done)
+            - self.q[prev_sa]
+        )
+
+        action = next_action
         # --------------------------
 
         return action
@@ -107,12 +130,14 @@ def train_episode(agent: Agent, env: RaceTrack) -> tuple[list[State], list[Actio
     action = policy(state)
     while not done:
         next_state, reward, done, _ = env.step(action)
+        next_action = agent.agent_step(state, action, reward, next_state, done)
+
         states.append(state)
         rewards.append(reward)
         actions.append(action)
-        if not done:
-            action = agent.agent_step(state, action, reward, next_state, done)
+
         state = next_state
+        action = next_action
     # --------------------------
 
     return states, actions, rewards

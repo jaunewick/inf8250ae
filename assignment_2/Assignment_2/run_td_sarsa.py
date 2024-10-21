@@ -13,7 +13,7 @@ np.random.seed(seed)
 random.seed(seed)
 render_mode = None
 
-num_episodes = 500
+num_episodes = 2000
 env = RaceTrack(track_map='c', render_mode=render_mode)
 
 info = {"env": env,
