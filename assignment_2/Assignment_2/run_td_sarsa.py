@@ -23,19 +23,71 @@ info = {"env": env,
         'seed': 0
         }
 
-returns = []
-agents = []
+sarsa_returns = []
+sarsa_agents = []
 
-for i in range(5):
-        all_returns, agent = td_control(env, agent_class=Sarsa, info=info, num_episodes=num_episodes)
-        returns.append(all_returns)
-        agents.append(agent)
+# for i in range(5):
+        # info['seed'] = i
+        # np.random.seed(info['seed'])
+        # random.seed(info['seed'])
+#         all_returns, agent = td_control(env, agent_class=Sarsa, info=info, num_episodes=num_episodes)
+#         sarsa_returns.append(all_returns)
+#         sarsa_agents.append(agent)
 
-with open('data/td_sarsa_returns.npy', 'wb') as f:
-        np.save(f, returns)
-with open('data/td_sarsa_agents.npy', 'wb') as g:
-        np.save(g, agents)
+# with open('data/td_sarsa_returns.npy', 'wb') as f:
+#         np.save(f, sarsa_returns)
+# with open('data/td_sarsa_agents.npy', 'wb') as g:
+#         np.save(g, sarsa_agents)
 
-plt.figure(figsize=(15, 7))
-plt.grid()
-utl.plot_many(returns)
+# with open('data/td_sarsa_agents.npy', 'rb') as g:
+#     trained_agents = np.load(g, allow_pickle=True)
+
+# ZERO_GREEDY = 0
+
+# greedy_returns = []
+
+# for agent in trained_agents:
+#         agent.epsilon = ZERO_GREEDY
+
+#         greedy_policy = agent.get_current_policy()
+#         states, actions, rewards = utl.generate_episode(greedy_policy, env)
+#         greedy_returns.append(sum(rewards))
+
+# print(f"Accumulated sarsa_returns obtained in each episode run using {ZERO_GREEDY}-greedy policy:", greedy_returns)
+
+qlearning_returns = []
+qlearning_agents = []
+
+# for i in range(5):
+#         info['seed'] = i
+#         np.random.seed(info['seed'])
+#         random.seed(info['seed'])
+#         all_returns, agent = td_control(env, agent_class=QLearningAgent, info=info, num_episodes=num_episodes)
+#         qlearning_returns.append(all_returns)
+#         qlearning_agents.append(agent)
+
+# with open('data/td_qlearning_returns.npy', 'wb') as f:
+#         np.save(f, qlearning_returns)
+# with open('data/td_qlearning_agents.npy', 'wb') as g:
+#         np.save(g, qlearning_agents)
+
+# plt.figure(figsize=(15, 7))
+# plt.grid()
+# utl.plot_many(qlearning_returns)
+
+# with open('data/td_qlearning_agents.npy', 'rb') as g:
+#         trained_agents = np.load(g, allow_pickle=True)
+
+# ZERO_GREEDY = 0
+# FIFTH_GREEDY = 0.2
+
+# greedy_returns = []
+
+# for agent in trained_agents:
+#         agent.epsilon = FIFTH_GREEDY
+
+#         greedy_policy = agent.get_current_policy()
+#         states, actions, rewards = utl.generate_episode(greedy_policy, env)
+#         greedy_returns.append(sum(rewards))
+
+# print(f"Q-Learning agents accumulated returns obtained in each episode run using {FIFTH_GREEDY}-greedy policy:", greedy_returns)

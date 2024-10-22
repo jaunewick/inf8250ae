@@ -73,7 +73,7 @@ class Sarsa(Agent):
 
         self.q[prev_sa] += self.step_size * (
             prev_reward
-            + self.discount * self.q[current_sa] * (not done)
+            + (not done) * self.discount * self.q[current_sa]
             - self.q[prev_sa]
         )
 
@@ -96,7 +96,7 @@ class QLearningAgent(Agent):
 
         self.q[prev_sa] += self.step_size * (
             prev_reward
-            + self.discount * np.max([self.q[(*current_state, a)] for a in range(9)]) * (not done)
+            + (not done) * self.discount * np.max([self.q[(*current_state, a)] for a in range(9)])
             - self.q[prev_sa]
         )
 
