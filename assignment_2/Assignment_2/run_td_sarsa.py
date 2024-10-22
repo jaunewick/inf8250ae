@@ -44,20 +44,21 @@ plt.grid()
 utl.plot_many(sarsa_returns)
 
 # with open('data/td_sarsa_agents.npy', 'rb') as g:
-#     trained_agents = np.load(g, allow_pickle=True)
+#         trained_agents = np.load(g, allow_pickle=True)
 
 # ZERO_GREEDY = 0
+# FIFTH_GREEDY = 0.2
 
 # greedy_returns = []
 
 # for agent in trained_agents:
-#         agent.epsilon = ZERO_GREEDY
+#         agent.epsilon = FIFTH_GREEDY
 
 #         greedy_policy = agent.get_current_policy()
 #         states, actions, rewards = utl.generate_episode(greedy_policy, env)
 #         greedy_returns.append(sum(rewards))
 
-# print(f"Accumulated sarsa_returns obtained in each episode run using {ZERO_GREEDY}-greedy policy:", greedy_returns)
+# print(f"Sarsa agents accumulated returns obtained in each episode run using {FIFTH_GREEDY}-greedy policy:", greedy_returns)
 
 
 qlearning_returns = []
