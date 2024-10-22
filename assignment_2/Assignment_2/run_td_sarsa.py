@@ -26,18 +26,22 @@ info = {"env": env,
 sarsa_returns = []
 sarsa_agents = []
 
-# for i in range(5):
-        # info['seed'] = i
-        # np.random.seed(info['seed'])
-        # random.seed(info['seed'])
-#         all_returns, agent = td_control(env, agent_class=Sarsa, info=info, num_episodes=num_episodes)
-#         sarsa_returns.append(all_returns)
-#         sarsa_agents.append(agent)
+for i in range(5):
+        info['seed'] = i
+        np.random.seed(info['seed'])
+        random.seed(info['seed'])
+        all_returns, agent = td_control(env, agent_class=Sarsa, info=info, num_episodes=num_episodes)
+        sarsa_returns.append(all_returns)
+        sarsa_agents.append(agent)
 
-# with open('data/td_sarsa_returns.npy', 'wb') as f:
-#         np.save(f, sarsa_returns)
-# with open('data/td_sarsa_agents.npy', 'wb') as g:
-#         np.save(g, sarsa_agents)
+with open('data/td_sarsa_returns.npy', 'wb') as f:
+        np.save(f, sarsa_returns)
+with open('data/td_sarsa_agents.npy', 'wb') as g:
+        np.save(g, sarsa_agents)
+
+plt.figure(figsize=(15, 7))
+plt.grid()
+utl.plot_many(sarsa_returns)
 
 # with open('data/td_sarsa_agents.npy', 'rb') as g:
 #     trained_agents = np.load(g, allow_pickle=True)
@@ -54,6 +58,7 @@ sarsa_agents = []
 #         greedy_returns.append(sum(rewards))
 
 # print(f"Accumulated sarsa_returns obtained in each episode run using {ZERO_GREEDY}-greedy policy:", greedy_returns)
+
 
 qlearning_returns = []
 qlearning_agents = []
