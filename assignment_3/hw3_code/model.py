@@ -17,7 +17,7 @@ class DQNTrainingArgs:
     learning_rate: float = 5e-4 # learning rate for DQN parameter optimization
     target_update_every: int = 512 # the target network update frequency (per training steps)
     fifo_buffer_size: int = 7500 # the total size of the replay buffer
-    buffer_prefill: int = 75000 # the number of transitions to prefill the replay buffer with.
+    buffer_prefill: int = 7500 # the number of transitions to prefill the replay buffer with.
     train_batch_size: int = 128 # the batch size used in training
     start_eps: float = 1.0 # epsilon (of epsilon-greedy action selection) in the beginning of the training
     end_eps: float = 0.05 # epsilon (of epsilon-greedy action selection) in the end of the training
