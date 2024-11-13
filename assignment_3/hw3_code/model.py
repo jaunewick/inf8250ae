@@ -14,10 +14,22 @@ from buffer import Transition
 
 class DQNTrainingArgs:
     gamma: float = 0.99 # discounting factor in MDP
-    learning_rate: float = 2.5e-4 # learning rate for DQN parameter optimization
+
+    # Change made to the default value of learning_rate from 2.5e-4 to 5e-4
+    learning_rate: float = 5e-4 # learning rate for DQN parameter optimization
+    # BONUS : leanring_rate = 5e-4 to 2.5e-4, comment out the above line and uncomment the below line
+    # learning_rate: float = 2.5e-4 # learning rate for DQN parameter optimization
+
     target_update_every: int = 512 # the target network update frequency (per training steps)
-    fifo_buffer_size: int = 5000 # the total size of the replay buffer
-    buffer_prefill: int = 5000 # the number of transitions to prefill the replay buffer with.
+
+    fifo_buffer_size: int = 10000 # the total size of the replay buffer
+    # BONUS : fifo_buffer_size = 10000 to 5000, comment out the above line and uncomment the below line
+    # fifo_buffer_size: int = 5000 # the total size of the replay buffer
+
+    buffer_prefill: int = 10000 # the number of transitions to prefill the replay buffer with.
+    # BONUS : buffer_prefill = 10000 to 5000, comment out the above line and uncomment the below line
+    # buffer_prefill: int = 5000 # the number of transitions to prefill the replay buffer with.
+
     train_batch_size: int = 128 # the batch size used in training
     start_eps: float = 1.0 # epsilon (of epsilon-greedy action selection) in the beginning of the training
     end_eps: float = 0.05 # epsilon (of epsilon-greedy action selection) in the end of the training
@@ -48,7 +60,6 @@ class DQN(nn.Module):
         Returns:
             array containing Q-values for each action, its shape is [batch, n_actions]
         """
-        batch = state.shape[0]
         ################
         ## YOUR CODE GOES HERE
         x = nn.Dense(features=128)(state)
@@ -113,14 +124,14 @@ def select_action(dqn: DQN, rng: chex.PRNGKey, params: DQNParameters, state: che
     """
     ################
     ## YOUR CODE GOES HERE
-    rng, rng_key = jax.random.split(rng)
-    random_value = jax.random.uniform(rng_key)
-    random_action = jax.random.randint(rng, minval=0, maxval=dqn.n_actions, shape=())
+    rng, rng_key_1, rng_key_2 = jax.random.split(rng, 3)
+
+    random_value = jax.random.uniform(rng_key_1)
+    random_action = jax.random.randint(rng_key_2, minval=0, maxval=dqn.n_actions, shape=())
 
     q_values = dqn.apply(params, state)
-    best_action = jnp.argmax(q_values, axis=-1)
 
-    action = jnp.where(random_value < epsilon, random_action, best_action)
+    action = jnp.where(random_value < epsilon, random_action, jnp.argmax(q_values, axis=-1))
     ################
     
     return action
@@ -187,7 +198,6 @@ def initialize_agent_state(dqn: DQN, rng: chex.PRNGKey, args: DQNTrainingArgs) -
     ################
     ## YOUR CODE GOES HERE
     state_shape = [4]
-
     rng, rng_key = jax.random.split(rng)
     dummy_input = jnp.ones((1, *state_shape), jnp.float32)
 
@@ -239,7 +249,6 @@ def compute_loss_double_dqn(dqn: DQN, params: DQNParameters, target_params: DQNP
 
     target_q_values = dqn.apply(target_params, next_state)
     target_q_values_params = dqn.apply(params, next_state)
-
     target_q_value = reward + gamma * (1 - done) * target_q_values[jnp.argmax(target_q_values_params, axis=-1)]
 
     loss = jnp.square(q_value - target_q_value)

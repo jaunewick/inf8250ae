@@ -88,6 +88,7 @@ def add_transition(buffer: ReplayBufferStorage, transition: Transition) -> Repla
   new_rewards = buffer.rewards.at[index].set(reward)
   new_dones = buffer.dones.at[index].set(done)
   new_next_states = buffer.next_states.at[index].set(next_state)
+
   new_cursor = (cursor + 1) % max_buffer_size
 
   new_full = buffer.full | (new_cursor == 0)
@@ -127,6 +128,7 @@ def sample_transition(rng: chex.PRNGKey, buffer: ReplayBufferStorage) -> Transit
   full = buffer.full
 
   rng, rng_key = jax.random.split(rng)
+
   max_idx = jnp.where(full, max_buffer_size, cursor)
   idx = jax.random.randint(rng_key, minval=0, maxval=max_idx, shape=())
 
