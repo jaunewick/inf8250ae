@@ -42,11 +42,7 @@ class DQN(nn.Module):
     @nn.compact
     def __call__(self, state: '[batch, *state_shape]') -> '[batch, n_actions]':
         """ This function defines the forward pass of Deep Q-Network.
-    
-        Note that the expected format of convolutional layers is [B, H, W, C]
-        Where B - batch dimension, H, W - height and width dimensions respectively
-        C - channels dimension
-    
+
         Args:
             state: dtype float32, shape [batch, *state_shape] a batch of states of MDP
         Returns:
@@ -55,9 +51,13 @@ class DQN(nn.Module):
         batch = state.shape[0]
         ################
         ## YOUR CODE GOES HERE
+        x = nn.Dense(features=128)(state)
+        x = nn.relu(x)
+        x = nn.Dense(features=128)(x)
+        x = nn.relu(x)
+        x = nn.Dense(features=self.n_actions)(x)
         ################
-        
-        return jnp.zeros((batch, self.n_actions), dtype=jnp.float32)
+        return x
 
 
 DQNParameters = flax.core.frozen_dict.FrozenDict
@@ -113,9 +113,17 @@ def select_action(dqn: DQN, rng: chex.PRNGKey, params: DQNParameters, state: che
     """
     ################
     ## YOUR CODE GOES HERE
+    rng, rng_key = jax.random.split(rng)
+    random_value = jax.random.uniform(rng_key)
+    random_action = jax.random.randint(rng, minval=0, maxval=dqn.n_actions, shape=())
+
+    q_values = dqn.apply(params, state)
+    best_action = jnp.argmax(q_values, axis=-1)
+
+    action = jnp.where(random_value < epsilon, random_action, best_action)
     ################
     
-    return jnp.array(0, dtype=jnp.int32)
+    return action
 
 
 def compute_loss(dqn: DQN, params: DQNParameters, target_params: DQNParameters, transition: Transition, gamma: float) -> chex.Array:
@@ -137,8 +145,15 @@ def compute_loss(dqn: DQN, params: DQNParameters, target_params: DQNParameters, 
     
     ################
     ## YOUR CODE GOES HERE
+    q_values = dqn.apply(params, state)
+    q_value = q_values[action]
+
+    target_q_values = dqn.apply(target_params, next_state)
+    target_q_value = reward + gamma * (1 - done) * jnp.max(target_q_values)
+
+    loss = jnp.square(q_value - target_q_value)
     ################
-    return jnp.array(0., dtype=jnp.float32)
+    return loss
 
 
 def update_target(state: DQNTrainState) -> DQNTrainState:
@@ -152,7 +167,7 @@ def update_target(state: DQNTrainState) -> DQNTrainState:
     """
     ################
     ## YOUR CODE GOES HERE
-    new_state = state
+    new_state = state.replace(target_params=state.params)
     ################
     
     return new_state
@@ -171,11 +186,20 @@ def initialize_agent_state(dqn: DQN, rng: chex.PRNGKey, args: DQNTrainingArgs) -
     """
     ################
     ## YOUR CODE GOES HERE
+    state_shape = [4]
+
+    rng, rng_key = jax.random.split(rng)
+    dummy_input = jnp.ones((1, *state_shape), jnp.float32)
+
+    parameters = dqn.init(rng_key, dummy_input)
+    target_params = parameters
+    tx = optax.adam(learning_rate=args.learning_rate)
+
     train_state = DQNTrainState.create(
-        apply_fn=None,
-        params=None,
-        target_params=None,
-        tx=None,
+        apply_fn=dqn.apply,
+        params=parameters,
+        target_params=target_params,
+        tx=tx,
     )
 
     return train_state
