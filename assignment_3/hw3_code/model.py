@@ -234,9 +234,18 @@ def compute_loss_double_dqn(dqn: DQN, params: DQNParameters, target_params: DQNP
     
     ################
     ## YOUR CODE GOES HERE
+    q_values = dqn.apply(params, state)
+    q_value = q_values[action]
+
+    target_q_values = dqn.apply(target_params, next_state)
+    target_q_values_params = dqn.apply(params, next_state)
+
+    target_q_value = reward + gamma * (1 - done) * target_q_values[jnp.argmax(target_q_values_params, axis=-1)]
+
+    loss = jnp.square(q_value - target_q_value)
     ################
 
-    return jnp.array(0., dtype=jnp.float32)
+    return loss
 
 
 DoubleDQNAgent = DQNAgent(
