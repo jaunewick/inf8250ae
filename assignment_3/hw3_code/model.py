@@ -16,19 +16,19 @@ class DQNTrainingArgs:
     gamma: float = 0.99 # discounting factor in MDP
 
     # Change made to the default value of learning_rate from 2.5e-4 to 5e-4
-    learning_rate: float = 5e-4 # learning rate for DQN parameter optimization
+    # learning_rate: float = 5e-4 # learning rate for DQN parameter optimization
     # BONUS : leanring_rate = 5e-4 to 2.5e-4, comment out the above line and uncomment the below line
-    # learning_rate: float = 2.5e-4 # learning rate for DQN parameter optimization
+    learning_rate: float = 2.5e-4 # learning rate for DQN parameter optimization
 
     target_update_every: int = 512 # the target network update frequency (per training steps)
 
-    fifo_buffer_size: int = 10000 # the total size of the replay buffer
-    # BONUS : fifo_buffer_size = 10000 to 5000, comment out the above line and uncomment the below line
-    # fifo_buffer_size: int = 5000 # the total size of the replay buffer
+    # fifo_buffer_size: int = 10000 # the total size of the replay buffer
+    # BONUS : fifo_buffer_size = 10000 to 3000, comment out the above line and uncomment the below line
+    fifo_buffer_size: int = 3000 # the total size of the replay buffer
 
-    buffer_prefill: int = 10000 # the number of transitions to prefill the replay buffer with.
-    # BONUS : buffer_prefill = 10000 to 5000, comment out the above line and uncomment the below line
-    # buffer_prefill: int = 5000 # the number of transitions to prefill the replay buffer with.
+    # buffer_prefill: int = 10000 # the number of transitions to prefill the replay buffer with.
+    # BONUS : buffer_prefill = 10000 to 3000, comment out the above line and uncomment the below line
+    buffer_prefill: int = 3000 # the number of transitions to prefill the replay buffer with.
 
     train_batch_size: int = 128 # the batch size used in training
     start_eps: float = 1.0 # epsilon (of epsilon-greedy action selection) in the beginning of the training
