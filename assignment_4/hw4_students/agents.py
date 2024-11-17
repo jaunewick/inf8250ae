@@ -140,7 +140,10 @@ class Policy(ABC, Generic[TPolicyState]):
         :return sampled_action jax.Array: Sampled action, should be a jax.Array with empty shape and dtype of jnp.int32
         """
         ### ------------------------- To implement -------------------------
+        action_probabilities = self.get_action_probabilities(policy_state.actor_network_state.model_parameters, observation, action_mask)
 
+        sampled_action = jax.random.choice(key, jnp.arrange(len(action_mask)), p=action_probabilities)
+        return sampled_action.astype(jnp.int32)
         ### ----------------------------------------------------------------
 
     def actions_to_probabilities(self, model_parameters: eqx.Module, observations: jax.Array, actions: jax.Array, action_masks: jax.Array) -> jax.Array:
@@ -260,7 +263,11 @@ class ReinforcePolicy(Policy[ReinforcePolicyState]):
             Forbidden actions must have a probability of 0.
         """
         ### ------------------------- To implement -------------------------
+        logits = self.actor.get_logits(model_parameters, observation)
+        masked_logits = jnp.where(action_mask, logits, -jnp.inf)
+        action_probabilities = jax.nn.softmax(masked_logits)
 
+        return action_probabilities
         ### ----------------------------------------------------------------
 
     def compute_loss(self, model_parameters: eqx.Module, transitions: Transition) -> tuple[float, LogDict]:
@@ -327,7 +334,11 @@ class BaseActorCriticPolicy(Policy[TActorCriticState], Generic[TActorCriticState
             Forbidden actions must have a probability of 0.
         """
         ### ------------------------- To implement -------------------------
+        logits = self.actor.get_logits(model_parameters, observation)
+        masked_logits = jnp.where(action_mask, logits, -jnp.inf)
+        action_probabilities = jax.nn.softmax(masked_logits)
 
+        return action_probabilities
         ### ----------------------------------------------------------------
 
 
