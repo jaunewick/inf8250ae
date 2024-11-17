@@ -248,7 +248,17 @@ class ReinforcePolicy(Policy[ReinforcePolicyState]):
         :param float discount_factor: Discount factor to use
         """
         ### ------------------------- To implement -------------------------
+        rewards = transitions.reward
+        dones = transitions.done
 
+        discounted_returns = jnp.zeros_like(rewards)
+        last_return = 0
+
+        for t in range(rewards.shape[0]-1, -1, -1):
+            last_return = rewards[t] + discount_factor * last_return * (1 - dones[t])
+            discounted_returns = discounted_returns.at[t].set(last_return)
+
+        return discounted_returns
         ### ----------------------------------------------------------------
 
     def get_action_probabilities(self, model_parameters: eqx.Module, observation: jax.Array, action_mask: jax.Array) -> jax.Array:
@@ -281,7 +291,16 @@ class ReinforcePolicy(Policy[ReinforcePolicyState]):
         :return log_dict (dict[str, float]): Dictionnary containing entries to log
         """
         ### ------------------------- To implement -------------------------
-        loss = ...
+        action_probabilities = jax.vmap(self.get_action_probabilities, in_axes=(None, 0, 0, 0))(
+            model_parameters,
+            transitions.observation,
+            transitions.action,
+            transitions.action_mask
+        )
+        log_probabilities = jnp.log(action_probabilities)
+
+        discounted_returns = self.compute_discounted_returns(transitions, self.discount_factor)
+        loss = -jnp.mean(discounted_returns * log_probabilities)
         ### ----------------------------------------------------------------
         return loss, {"Actor loss": loss}
 
