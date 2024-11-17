@@ -297,7 +297,7 @@ class ReinforcePolicy(Policy[ReinforcePolicyState]):
             model_parameters,
             transitions.observation,
             transitions.action,
-            transitions.action_mask,
+            transitions.action_mask
         )
         log_probabilities = jnp.log(probabilities)
 
@@ -421,9 +421,21 @@ class ReinforceBaselinePolicy(ActorCriticPolicy, ReinforcePolicy):
         """
         actor_model_parameters, critic_model_parameters = model_parameters
         ### ------------------------- To implement -------------------------
-        actor_loss = ...
-        critic_loss = ...
-        loss = ...
+        discounted_returns = self.compute_discounted_returns(transitions, self.discount_factor)
+        baseline_values = self.critic.get_batch_logits(critic_model_parameters, transitions.observation).squeeze(axis=-1)
+        advantages = discounted_returns - baseline_values
+
+        probabilities = self.actions_to_probabilities(
+            actor_model_parameters,
+            transitions.observation,
+            transitions.action,
+            transitions.action_mask
+        )
+        log_probabilities = jnp.log(probabilities)
+
+        actor_loss = -jnp.mean(jax.lax.stop_gradient(advantages) * log_probabilities)
+        critic_loss = jnp.mean(jnp.square(baseline_values - jax.lax.stop_gradient(discounted_returns)))
+        loss = actor_loss + critic_loss
         ### ----------------------------------------------------------------
 
         loss_dict = {
