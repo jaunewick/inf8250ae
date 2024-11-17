@@ -142,7 +142,7 @@ class Policy(ABC, Generic[TPolicyState]):
         ### ------------------------- To implement -------------------------
         action_probabilities = self.get_action_probabilities(policy_state.actor_network_state.model_parameters, observation, action_mask)
 
-        sampled_action = jax.random.choice(key, jnp.arrange(len(action_mask)), p=action_probabilities)
+        sampled_action = jax.random.choice(key, jnp.arange(len(action_mask)), p=action_probabilities)
         return sampled_action.astype(jnp.int32)
         ### ----------------------------------------------------------------
 
