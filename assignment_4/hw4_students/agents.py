@@ -293,13 +293,13 @@ class ReinforcePolicy(Policy[ReinforcePolicyState]):
         ### ------------------------- To implement -------------------------
         discounted_returns = self.compute_discounted_returns(transitions, self.discount_factor)
 
-        log_probabilities = self.actions_to_probabilities(
+        probabilities = self.actions_to_probabilities(
             model_parameters,
             transitions.observation,
             transitions.action,
             transitions.action_mask,
         )
-        log_probabilities = jnp.log(log_probabilities)
+        log_probabilities = jnp.log(probabilities)
 
         loss = -jnp.mean(discounted_returns * log_probabilities)
         ### ----------------------------------------------------------------
