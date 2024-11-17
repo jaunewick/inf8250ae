@@ -14,7 +14,19 @@ class MLP(eqx.Module):
         :param list[int] layer_shapes: Shape of each layer, with the following pattern: [input_layer, hidden_layer_1, ..., output_layer]
         """
         ### ------------------------- To implement -------------------------
-        layers = ...
+        layers = []
+
+        input_layer_sizes = layer_shapes[:-1]
+        output_layer_sizes = layer_shapes[1:]
+        output_layer_size = layer_shapes[-1]
+
+        for input_size, output_size in zip(input_layer_sizes, output_layer_sizes):
+            rng, rng_key = jax.random.split(rng)
+
+            layers.append(nn.Linear(input_size, output_size, key=rng_key))
+
+            if output_size != output_layer_size:
+                layers.append(nn.Lambda(jax.nn.relu))
         ### ----------------------------------------------------------------
         self.layers = nn.Sequential(layers)
 
