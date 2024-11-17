@@ -291,15 +291,16 @@ class ReinforcePolicy(Policy[ReinforcePolicyState]):
         :return log_dict (dict[str, float]): Dictionnary containing entries to log
         """
         ### ------------------------- To implement -------------------------
-        action_probabilities = jax.vmap(self.get_action_probabilities, in_axes=(None, 0, 0, 0))(
+        discounted_returns = self.compute_discounted_returns(transitions, self.discount_factor)
+
+        log_probabilities = self.actions_to_probabilities(
             model_parameters,
             transitions.observation,
             transitions.action,
-            transitions.action_mask
+            transitions.action_mask,
         )
-        log_probabilities = jnp.log(action_probabilities)
+        log_probabilities = jnp.log(log_probabilities)
 
-        discounted_returns = self.compute_discounted_returns(transitions, self.discount_factor)
         loss = -jnp.mean(discounted_returns * log_probabilities)
         ### ----------------------------------------------------------------
         return loss, {"Actor loss": loss}
