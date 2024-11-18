@@ -380,9 +380,26 @@ class ActorCriticPolicy(BaseActorCriticPolicy[ActorCriticState]):
         """
         actor_parameters, critic_parameters = model_parameters
         ### ------------------------- To implement -------------------------
-        actor_loss = ...
-        critic_loss = ...
-        loss = ...
+        td_targets = jax.lax.stop_gradient(
+            transitions.reward
+            + self.discount_factor * (1 - transitions.done) * self.critic.get_batch_logits(critic_parameters, transitions.next_observation)
+        )
+
+        values = self.critic.get_batch_logits(critic_parameters, transitions.observation)
+
+        advantages = jax.lax.stop_gradient(td_targets - values)
+
+        probabilities = self.actions_to_probabilities(
+            actor_parameters,
+            transitions.observation,
+            transitions.action,
+            transitions.action_mask
+        )
+        log_probabilities = jnp.log(probabilities)
+
+        actor_loss = -jnp.mean(advantages * log_probabilities)
+        critic_loss = 0.5 * jnp.mean(jnp.square(td_targets - values))
+        loss = actor_loss + critic_loss
         ### ----------------------------------------------------------------
 
         loss_dict = {
