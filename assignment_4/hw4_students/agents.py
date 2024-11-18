@@ -422,7 +422,7 @@ class ReinforceBaselinePolicy(ActorCriticPolicy, ReinforcePolicy):
         actor_model_parameters, critic_model_parameters = model_parameters
         ### ------------------------- To implement -------------------------
         discounted_returns = self.compute_discounted_returns(transitions, self.discount_factor)
-        baseline_values = self.critic.get_batch_logits(critic_model_parameters, transitions.observation).squeeze(axis=-1)
+        baseline_values = self.critic.get_batch_logits(critic_model_parameters, transitions.observation)
         advantages = discounted_returns - baseline_values
 
         probabilities = self.actions_to_probabilities(
