@@ -301,7 +301,7 @@ class ReinforcePolicy(Policy[ReinforcePolicyState]):
         ### ------------------------- To implement -------------------------
         batch_discounted_returns = self.compute_discounted_returns(transitions, self.discount_factor)
 
-        batch_log_probabilities = jax.vmap(self.actions_to_probabilities, in_axes=(None, 0, 0, 0))(
+        batch_log_probabilities = jax.vmap(self.actions_to_probabilities)(
             model_parameters,
             transitions.observation,
             transitions.action,
@@ -395,10 +395,7 @@ class ActorCriticPolicy(BaseActorCriticPolicy[ActorCriticState]):
         values = self.critic.get_batch_logits(critic_parameters, transitions.observation)
         advantages = jax.lax.stop_gradient(td_targets - values)
 
-        batch_probabilities = jax.vmap(
-            self.actions_to_probabilities,
-            in_axes=(None, 0, 0, 0)
-        )(
+        batch_probabilities = jax.vmap(self.actions_to_probabilities)(
             actor_parameters,
             transitions.observation,
             transitions.action,
@@ -452,7 +449,7 @@ class ReinforceBaselinePolicy(ActorCriticPolicy, ReinforcePolicy):
         baseline_values = self.critic.get_batch_logits(critic_model_parameters, transitions.observation)
         advantages = jax.lax.stop_gradient(batch_discounted_returns - baseline_values)
 
-        batch_probabilities = jax.vmap(self.actions_to_probabilities, in_axes=(None, 0, 0, 0))(
+        batch_probabilities = jax.vmap(self.actions_to_probabilities)(
             actor_model_parameters,
             transitions.observation,
             transitions.action,
