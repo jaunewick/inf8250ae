@@ -256,14 +256,17 @@ class ReinforcePolicy(Policy[ReinforcePolicyState]):
         rewards = transitions.reward
         dones = transitions.done
 
-        discounted_returns = jnp.zeros_like(rewards)
-        last_return = 0
+        reversed_rewards = rewards[::-1]
+        reversed_dones = dones[::-1]
 
-        for t in range(rewards.shape[0]-1, -1, -1):
-            last_return = rewards[t] + discount_factor * last_return * (1 - dones[t])
-            discounted_returns = discounted_returns.at[t].set(last_return)
+        discounted_returns = jnp.zeros_like(reversed_rewards)
+        cumulative_return = 0
 
-        return discounted_returns
+        for t in range(reversed_rewards.shape[0]):
+            cumulative_return = reversed_rewards[t] + discount_factor * cumulative_return * (1 - reversed_dones[t])
+            discounted_returns = discounted_returns.at[t].set(cumulative_return)
+
+        return discounted_returns[::-1]
         ### ----------------------------------------------------------------
 
     def get_action_probabilities(self, model_parameters: eqx.Module, observation: jax.Array, action_mask: jax.Array) -> jax.Array:
@@ -296,9 +299,7 @@ class ReinforcePolicy(Policy[ReinforcePolicyState]):
         :return log_dict (dict[str, float]): Dictionnary containing entries to log
         """
         ### ------------------------- To implement -------------------------
-        batch_discounted_returns = jax.vmap(self.compute_discounted_returns, in_axes=(0, None))(
-            transitions, self.discount_factor
-        )
+        batch_discounted_returns = self.compute_discounted_returns(transitions, self.discount_factor)
 
         batch_log_probabilities = jax.vmap(self.actions_to_probabilities, in_axes=(None, 0, 0, 0))(
             model_parameters,
@@ -387,14 +388,9 @@ class ActorCriticPolicy(BaseActorCriticPolicy[ActorCriticState]):
         """
         actor_parameters, critic_parameters = model_parameters
         ### ------------------------- To implement -------------------------
-        td_targets = jax.vmap(
-            lambda r, d, next_obs: jax.lax.stop_gradient(
-                r + self.discount_factor * (1 - d) * self.critic.get_logits(critic_parameters, next_obs)
-            )
-        )(
-            transitions.reward,
-            transitions.done,
-            transitions.next_observation
+        td_targets = jax.lax.stop_gradient(
+            transitions.reward
+            + self.discount_factor * (1 - transitions.done) * self.critic.get_batch_logits(critic_parameters, transitions.next_observation)
         )
         values = self.critic.get_batch_logits(critic_parameters, transitions.observation)
         advantages = jax.lax.stop_gradient(td_targets - values)
@@ -452,9 +448,7 @@ class ReinforceBaselinePolicy(ActorCriticPolicy, ReinforcePolicy):
         """
         actor_model_parameters, critic_model_parameters = model_parameters
         ### ------------------------- To implement -------------------------
-        batch_discounted_returns = jax.vmap(self.compute_discounted_returns, in_axes=(0, None))(
-            transitions, self.discount_factor
-        )
+        batch_discounted_returns = self.compute_discounted_returns(transitions, self.discount_factor)
         baseline_values = self.critic.get_batch_logits(critic_model_parameters, transitions.observation)
         advantages = jax.lax.stop_gradient(batch_discounted_returns - baseline_values)
 
