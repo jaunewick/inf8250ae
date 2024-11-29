@@ -140,14 +140,9 @@ class Policy(ABC, Generic[TPolicyState]):
         :return sampled_action jax.Array: Sampled action, should be a jax.Array with empty shape and dtype of jnp.int32
         """
         ### ------------------------- To implement -------------------------
-        action_probabilities = self.get_action_probabilities(
-            policy_state.actor_network_state.model_parameters,
-            observation,
-            action_mask
-        )
+        action_probabilities = self.get_action_probabilities(policy_state.actor_network_state.model_parameters, observation, action_mask)
 
         sampled_action = jax.random.choice(key, jnp.arange(len(action_mask)), p=action_probabilities)
-
         return sampled_action.astype(jnp.int32)
         ### ----------------------------------------------------------------
 
@@ -299,17 +294,17 @@ class ReinforcePolicy(Policy[ReinforcePolicyState]):
         :return log_dict (dict[str, float]): Dictionnary containing entries to log
         """
         ### ------------------------- To implement -------------------------
-        batch_discounted_returns = self.compute_discounted_returns(transitions, self.discount_factor)
+        discounted_returns = self.compute_discounted_returns(transitions, self.discount_factor)
 
-        batch_log_probabilities = jax.vmap(self.actions_to_probabilities)(
+        probabilities = self.actions_to_probabilities(
             model_parameters,
             transitions.observation,
             transitions.action,
-            transitions.action_mask,
+            transitions.action_mask
         )
-        log_probabilities = jnp.log(batch_log_probabilities)
+        log_probabilities = jnp.log(probabilities)
 
-        loss = -jnp.mean(batch_discounted_returns * log_probabilities)
+        loss = -jnp.mean(discounted_returns * log_probabilities)
         ### ----------------------------------------------------------------
         return loss, {"Actor loss": loss}
 
@@ -392,20 +387,21 @@ class ActorCriticPolicy(BaseActorCriticPolicy[ActorCriticState]):
             transitions.reward
             + self.discount_factor * (1 - transitions.done) * self.critic.get_batch_logits(critic_parameters, transitions.next_observation)
         )
+
         values = self.critic.get_batch_logits(critic_parameters, transitions.observation)
+
         advantages = jax.lax.stop_gradient(td_targets - values)
 
-        batch_probabilities = jax.vmap(self.actions_to_probabilities)(
+        probabilities = self.actions_to_probabilities(
             actor_parameters,
             transitions.observation,
             transitions.action,
             transitions.action_mask
         )
-        log_probabilities = jnp.log(batch_probabilities)
+        log_probabilities = jnp.log(probabilities)
 
         actor_loss = -jnp.mean(advantages * log_probabilities)
         critic_loss = 0.5 * jnp.mean(jnp.square(td_targets - values))
-
         loss = actor_loss + critic_loss
         ### ----------------------------------------------------------------
 
@@ -445,21 +441,20 @@ class ReinforceBaselinePolicy(ActorCriticPolicy, ReinforcePolicy):
         """
         actor_model_parameters, critic_model_parameters = model_parameters
         ### ------------------------- To implement -------------------------
-        batch_discounted_returns = self.compute_discounted_returns(transitions, self.discount_factor)
+        discounted_returns = self.compute_discounted_returns(transitions, self.discount_factor)
         baseline_values = self.critic.get_batch_logits(critic_model_parameters, transitions.observation)
-        advantages = jax.lax.stop_gradient(batch_discounted_returns - baseline_values)
+        advantages = discounted_returns - baseline_values
 
-        batch_probabilities = jax.vmap(self.actions_to_probabilities)(
+        probabilities = self.actions_to_probabilities(
             actor_model_parameters,
             transitions.observation,
             transitions.action,
-            transitions.action_mask,
+            transitions.action_mask
         )
-        log_probabilities = jnp.log(batch_probabilities)
+        log_probabilities = jnp.log(probabilities)
 
-        actor_loss = -jnp.mean(advantages * log_probabilities)
-        critic_loss = jnp.mean(jnp.square(baseline_values - jax.lax.stop_gradient(batch_discounted_returns)))
-
+        actor_loss = -jnp.mean(jax.lax.stop_gradient(advantages) * log_probabilities)
+        critic_loss = jnp.mean(jnp.square(baseline_values - jax.lax.stop_gradient(discounted_returns)))
         loss = actor_loss + critic_loss
         ### ----------------------------------------------------------------
 
