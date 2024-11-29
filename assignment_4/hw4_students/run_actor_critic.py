@@ -8,7 +8,7 @@ from trainers import ActorCriticTrainer
 
 SEED = 42
 NUM_EPISODES = 1_500
-BATCH_SIZE = 4  # Modify the batch size here
+BATCH_SIZE = 200  # Modify the batch size here
 SAVE_ROOT = Path("results")
 SAVE_ROOT.mkdir(parents=True, exist_ok=True)
 
@@ -25,7 +25,7 @@ trainer = ActorCriticTrainer(rng, policy, batch_size=BATCH_SIZE)
 
 baseline_perfs = trainer.get_random_policy_performances(baseline_key, is_reinforce_trainer=False)
 final_trainer_state = trainer.train(NUM_EPISODES)
-trainer.plot_results(baseline=baseline_perfs)
+# trainer.plot_results(baseline=baseline_perfs)
 
 figure_save_path = SAVE_ROOT / f"figures/actor_critic_{BATCH_SIZE}"
 figure_save_path.mkdir(parents=True, exist_ok=True)

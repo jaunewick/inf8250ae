@@ -256,17 +256,14 @@ class ReinforcePolicy(Policy[ReinforcePolicyState]):
         rewards = transitions.reward
         dones = transitions.done
 
-        reversed_rewards = rewards[::-1]
-        reversed_dones = dones[::-1]
+        discounted_returns = jnp.zeros_like(rewards)
+        last_return = 0
 
-        discounted_returns = jnp.zeros_like(reversed_rewards)
-        cumulative_return = 0
+        for t in range(rewards.shape[0]-1, -1, -1):
+            last_return = rewards[t] + discount_factor * last_return * (1 - dones[t])
+            discounted_returns = discounted_returns.at[t].set(last_return)
 
-        for t in range(reversed_rewards.shape[0]):
-            cumulative_return = reversed_rewards[t] + discount_factor * cumulative_return * (1 - reversed_dones[t])
-            discounted_returns = discounted_returns.at[t].set(cumulative_return)
-
-        return discounted_returns[::-1]
+        return discounted_returns
         ### ----------------------------------------------------------------
 
     def get_action_probabilities(self, model_parameters: eqx.Module, observation: jax.Array, action_mask: jax.Array) -> jax.Array:

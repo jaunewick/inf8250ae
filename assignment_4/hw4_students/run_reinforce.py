@@ -21,7 +21,7 @@ policy = ReinforcePolicy(actor, discount_factor=0.99)
 trainer = ReinforceTrainer(rng, policy)
 baseline_perfs = trainer.get_random_policy_performances(baseline_key, is_reinforce_trainer=True)
 final_trainer_state = trainer.train(NUM_EPISODES)
-trainer.plot_results(baseline=baseline_perfs)
+# trainer.plot_results(baseline=baseline_perfs)
 
 figure_save_path = SAVE_ROOT / "figures/reinforce"
 figure_save_path.mkdir(parents=True, exist_ok=True)
